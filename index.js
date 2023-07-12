@@ -18,8 +18,8 @@ client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-let data1 = new SlashCommandBuilder()
-  .setName("murezi")
+let pingCommand = new SlashCommandBuilder()
+  .setName("pingstart")
   .setDescription("Pings a user in a defined channel")
   .addUserOption((option) =>
     option.setName("user").setDescription("User to Ping")
@@ -31,16 +31,16 @@ let data1 = new SlashCommandBuilder()
     option.setName("message").setDescription("Message for ping.")
   );
 
-let data2 = new SlashCommandBuilder()
-  .setName("murezistop")
-  .setDescription("Murezi Stop");
+let stopCommand = new SlashCommandBuilder()
+  .setName("pingstop")
+  .setDescription("stops all Ping threads");
 
 let tasks = [];
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName == "murezi") {
+  if (interaction.commandName == "pingstart") {
 
     const user = interaction.options.getUser("user");
     const channel = interaction.options.getChannel("channel");
@@ -66,7 +66,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     tasks.push(task);
   }
 
-  if (interaction.commandName == "murezistop") {
+  if (interaction.commandName == "pingstop") {
     interaction.reply(`Done.`);
     tasks.forEach((task) => {
       task.stop();
@@ -81,7 +81,7 @@ const rest = new REST({ version: "10" }).setToken(config.token);
     console.log(`Started refreshing application (/) commands.`);
 
     await rest.put(Routes.applicationCommands(config.clientId), {
-      body: [data1, data2],
+      body: [pingCommand, stopCommand],
     });
 
     console.log(`Successfully reloaded application (/) commands.`);
